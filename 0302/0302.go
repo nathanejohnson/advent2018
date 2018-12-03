@@ -9,11 +9,11 @@ import (
 )
 
 type rec struct {
-	id int
-	ox int
-	oy int
-	dx int
-	dy int
+	id uint16
+	ox uint16
+	oy uint16
+	dx uint16
+	dy uint16
 }
 
 func main() {
@@ -24,23 +24,20 @@ func main() {
 	defer fh.Close()
 
 	reader := bufio.NewScanner(fh)
-	var grid [1000][1000]int
-	for lineNo := 0; reader.Scan(); lineNo++ {
+
+	var grid [1000][1000]uint8
+	prevLines := make([]rec, 0, 1295)
+	for reader.Scan() {
 		r := parse(reader.Text())
+		prevLines = append(prevLines, r)
 		for x := r.ox; x < r.ox+r.dx; x++ {
 			for y := r.oy; y < r.oy+r.dy; y++ {
 				grid[x][y]++
 			}
 		}
+	}
 
-	}
-	_, err = fh.Seek(0, 0)
-	if err != nil {
-		log.Fatal(err)
-	}
-	reader = bufio.NewScanner(fh)
-	for reader.Scan() {
-		r := parse(reader.Text())
+	for _, r := range prevLines {
 		found := true
 	outer:
 		for x := r.ox; x < r.ox+r.dx; x++ {
@@ -56,7 +53,6 @@ func main() {
 			return
 		}
 	}
-
 }
 
 func parse(line string) rec {
