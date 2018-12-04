@@ -59,13 +59,13 @@ func main() {
 }
 
 type fsm struct {
-	lastM *guard
-	sp    map[int]*guard
+	lastM  *guard
+	guards map[int]*guard
 }
 
 func Fsm() fsm {
 	return fsm{
-		sp: make(map[int]*guard),
+		guards: make(map[int]*guard),
 	}
 }
 
@@ -130,9 +130,9 @@ func (f *fsm) process(e entry) {
 			f.lastM.transition(awake, 59)
 		}
 		var m *guard
-		if m = f.sp[newGuardId]; m == nil {
+		if m = f.guards[newGuardId]; m == nil {
 			m = Guard(newGuardId)
-			f.sp[newGuardId] = m
+			f.guards[newGuardId] = m
 		}
 		f.lastM = m
 		return
@@ -150,7 +150,7 @@ func (f *fsm) process(e entry) {
 func (f *fsm) sleepiest() *guard {
 	var m *guard
 	max := 0
-	for _, guard := range f.sp {
+	for _, guard := range f.guards {
 		if guard.sleepTotal > max {
 			m = guard
 			max = guard.sleepTotal
@@ -163,7 +163,7 @@ func (f *fsm) sleepiestGuardMinute() (*guard, int) {
 	var mon *guard
 	var maxMinute, maxMinuteCt int
 
-	for _, guard := range f.sp {
+	for _, guard := range f.guards {
 		for min, ct := range guard.sleepMins {
 			if ct > maxMinuteCt {
 				mon = guard
