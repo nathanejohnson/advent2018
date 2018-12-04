@@ -127,7 +127,7 @@ func (f *fsm) process(e entry) {
 	_, err := fmt.Sscanf(e.vs, "Guard #%d begins shift", &newGuardId)
 	if err == nil {
 		if f.lastM != nil {
-			f.lastM.transition(awake, 59)
+			f.lastM.transition(awake, 60)
 		}
 		var m *guard
 		if m = f.guards[newGuardId]; m == nil {
