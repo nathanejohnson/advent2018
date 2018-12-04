@@ -1,0 +1,198 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"regexp"
+	"sort"
+	"time"
+)
+
+func main() {
+	const format = "2006-01-02 15:04"
+	fh, err := os.Open("./input.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fh.Close()
+
+	reader := bufio.NewScanner(fh)
+	re := regexp.MustCompile(`^\[([^\]]+)\]\s+(.*)$`)
+	var es entries
+	for reader.Scan() {
+		e := entry{}
+		t := reader.Text()
+		matches := re.FindStringSubmatch(t)
+		if len(matches) != 3 {
+			panic(fmt.Sprintf("fuck: %s, %d", t, len(matches)))
+		}
+
+		e.ts, err = time.Parse(format, matches[1])
+		if err != nil {
+			panic(err)
+		}
+		e.vs = matches[2]
+		es = append(es, e)
+	}
+	sort.Sort(es)
+
+	fsm := Fsm()
+	for _, e := range es {
+		fsm.process(e)
+	}
+
+	g := fsm.sleepiest()
+	fmt.Printf("sleepiest guard: %#v\n", g)
+
+	m := g.sleepiestMinute()
+	fmt.Printf("sleepiest hour: %d\n", m)
+
+	fmt.Printf("id * hour: %d\n", g.id * m)
+
+
+	g, m = fsm.sleepiestGuardMinute()
+
+	fmt.Printf("gid: %d, minute: %d, id*m: %d\n", g.id, m, g.id * m)
+}
+
+type fsm struct {
+	lastM *guard
+	sp map[int]*guard
+}
+
+func Fsm() fsm {
+	return fsm{
+		sp: make(map[int]*guard),
+	}
+}
+
+type state int
+
+const (
+	awake state = iota
+	asleep
+)
+
+type guard struct {
+	id int
+	sleepMins map[int]int
+	sleepTotal int
+	state state
+	lastMin int
+}
+
+func Guard(id int) *guard {
+	return &guard{
+		id: id,
+		sleepMins: make(map[int]int),
+	}
+}
+
+func (g *guard) transition(s state, minute int) {
+	switch s {
+	case awake:
+		switch g.state {
+		case asleep:
+			for t := g.lastMin; t < minute; t++ {
+				g.sleepMins[t]++
+				g.sleepTotal++
+			}
+		}
+	case asleep:
+		switch g.state {
+		case awake:
+			g.lastMin = minute
+		}
+	}
+	g.state = s
+}
+
+
+func (g *guard) sleepiestMinute() int {
+	var topMinute, topMinuteTotal int
+
+	for h, c := range g.sleepMins {
+		if c > topMinuteTotal {
+			topMinute = h
+			topMinuteTotal = c
+		}
+	}
+	return topMinute
+}
+
+func (f *fsm) process(e entry) {
+	var newGuardId int
+	_, err := fmt.Sscanf(e.vs, "Guard #%d begins shift", &newGuardId)
+	if err == nil {
+		if f.lastM != nil {
+			f.lastM.transition(awake, 59)
+		}
+		var m *guard
+		if m = f.sp[newGuardId]; m == nil {
+			m = Guard(newGuardId)
+		}
+		f.sp[newGuardId] = m
+		f.lastM = m
+		return
+	}
+	_, err = fmt.Sscanf(e.vs, "falls asleep")
+	if err == nil {
+		f.lastM.transition(asleep, e.ts.Minute())
+		return
+	}
+	_, err = fmt.Sscanf(e.vs, "wakes up")
+	if err == nil {
+		f.lastM.transition(awake, e.ts.Minute())
+		return
+	}
+	panic("unexpected state")
+}
+
+func (f *fsm) sleepiest() *guard {
+	var m *guard
+	max := 0
+	for _, guard := range f.sp {
+		if guard.sleepTotal > max {
+			m = guard
+			max = guard.sleepTotal
+		}
+	}
+	return m
+}
+
+func (f *fsm) sleepiestGuardMinute() (*guard, int) {
+	var mon *guard
+	var maxMinute, maxMinuteCt int
+
+	for _, guard := range f.sp {
+		for min, ct := range guard.sleepMins {
+			if ct > maxMinuteCt {
+				mon = guard
+				maxMinuteCt = ct
+				maxMinute = min
+			}
+		}
+	}
+	return mon, maxMinute
+}
+
+
+type entry struct {
+	ts time.Time
+	vs string
+}
+
+type entries []entry
+
+func (e entries) Len() int {
+	return len(e)
+}
+
+func (e entries) Less(i, j int) bool {
+	return e[i].ts.Before(e[j].ts)
+}
+func (e entries) Swap(i, j int) {
+	e[i], e[j] = e[j], e[i]
+}
