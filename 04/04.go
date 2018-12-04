@@ -49,17 +49,16 @@ func main() {
 	m := g.sleepiestMinute()
 	fmt.Printf("sleepiest hour: %d\n", m)
 
-	fmt.Printf("id * hour: %d\n", g.id * m)
-
+	fmt.Printf("id * hour: %d\n", g.id*m)
 
 	g, m = fsm.sleepiestGuardMinute()
 
-	fmt.Printf("gid: %d, minute: %d, id*m: %d\n", g.id, m, g.id * m)
+	fmt.Printf("gid: %d, minute: %d, id*m: %d\n", g.id, m, g.id*m)
 }
 
 type fsm struct {
 	lastM *guard
-	sp map[int]*guard
+	sp    map[int]*guard
 }
 
 func Fsm() fsm {
@@ -76,16 +75,16 @@ const (
 )
 
 type guard struct {
-	id int
-	sleepMins map[int]int
+	id         int
+	sleepMins  map[int]int
 	sleepTotal int
-	state state
-	lastMin int
+	state      state
+	lastMin    int
 }
 
 func Guard(id int) *guard {
 	return &guard{
-		id: id,
+		id:        id,
 		sleepMins: make(map[int]int),
 	}
 }
@@ -109,7 +108,6 @@ func (g *guard) transition(s state, minute int) {
 	g.state = s
 }
 
-
 func (g *guard) sleepiestMinute() int {
 	var topMinute, topMinuteTotal int
 
@@ -132,22 +130,19 @@ func (f *fsm) process(e entry) {
 		var m *guard
 		if m = f.sp[newGuardId]; m == nil {
 			m = Guard(newGuardId)
+			f.sp[newGuardId] = m
 		}
-		f.sp[newGuardId] = m
 		f.lastM = m
 		return
 	}
-	_, err = fmt.Sscanf(e.vs, "falls asleep")
-	if err == nil {
+	switch e.vs {
+	case "falls asleep":
 		f.lastM.transition(asleep, e.ts.Minute())
-		return
-	}
-	_, err = fmt.Sscanf(e.vs, "wakes up")
-	if err == nil {
+	case "wakes up":
 		f.lastM.transition(awake, e.ts.Minute())
-		return
+	default:
+		panic("unexpected state")
 	}
-	panic("unexpected state")
 }
 
 func (f *fsm) sleepiest() *guard {
@@ -177,7 +172,6 @@ func (f *fsm) sleepiestGuardMinute() (*guard, int) {
 	}
 	return mon, maxMinute
 }
-
 
 type entry struct {
 	ts time.Time
