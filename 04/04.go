@@ -20,10 +20,12 @@ func main() {
 
 	reader := bufio.NewScanner(fh)
 	re := regexp.MustCompile(`^\[([^\]]+)\]\s+(.*)$`)
+
 	var es entries
 	for reader.Scan() {
 		e := entry{}
 		t := reader.Text()
+
 		matches := re.FindStringSubmatch(t)
 		if len(matches) != 3 {
 			panic(fmt.Sprintf("fuck: %s, %d", t, len(matches)))
@@ -90,18 +92,18 @@ func Guard(id int) *guard {
 }
 
 func (g *guard) transition(s state, minute int) {
-	switch s {
-	case awake:
-		switch g.state {
-		case asleep:
+	switch g.state {
+	case asleep:
+		switch s {
+		case awake:
 			for t := g.lastMin; t < minute; t++ {
 				g.sleepMins[t]++
 				g.sleepTotal++
 			}
 		}
-	case asleep:
-		switch g.state {
-		case awake:
+	case awake:
+		switch s {
+		case asleep:
 			g.lastMin = minute
 		}
 	}
