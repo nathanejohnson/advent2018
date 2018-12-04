@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 )
 
 type rec struct {
@@ -66,14 +65,6 @@ func parse(line string) rec {
 	)
 	if err != nil {
 		panic(fmt.Sprintf("%s %s", line, err))
-	}
-	return r
-}
-
-func cvt(s string) int {
-	r, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
 	}
 	return r
 }
