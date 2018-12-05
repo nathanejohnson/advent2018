@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 )
 
 func main() {
@@ -16,31 +15,58 @@ func main() {
 	defer fh.Close()
 	reader := bufio.NewScanner(fh)
 	reader.Scan()
-	input := reader.Text()
-	reduced := reduce(input)
+	input := reader.Bytes()
+	origL := len(input)
+	scratch := make([]byte, origL)
+	copy(scratch, input)
+	reduced := reduce(scratch)
 	fmt.Printf("part 1: input: %d %d\n", len(input), len(reduced))
 	shortest := len(reduced)
 	for c := 'a'; c <= 'z'; c++ {
-		re := regexp.MustCompile(fmt.Sprintf("[%s%s]", string(c), string(c-32)))
-		newInput := re.ReplaceAllString(input, "")
-		fmt.Printf("newInput length: %d , old length: %d\n", len(newInput), len(input))
-		l := len(reduce(newInput))
-		if l < shortest {
-			shortest = l
+		copy(scratch, input)
+		reduced = removeChar(scratch, c)
+		reduced = reduce(reduced)
+		if len(reduced) < shortest {
+			shortest = len(reduced)
 		}
 	}
 	fmt.Printf("shortest: %d\n", shortest)
 }
 
-func reduce(input string) string {
+// modifies input bytes
+func removeChar(input []byte, lower rune) []byte {
+	lc := byte(lower)
+	if lc <= 'Z' {
+		lc -= 32
+	}
+	uc := lc - 32
 	i := 0
-	j := 1
-	for j < len(input) {
-		if abs(int(input[i])-int(input[j])) == 32 {
-			return reduce(input[:i] + input[j+1:])
+	for i < len(input) {
+		switch input[i] {
+		case lc, uc:
+			// squanch it
+			copy(input[i:], input[i+1:])
+			input = input[:len(input)-1]
+			continue
 		}
 		i++
-		j++
+	}
+	return input
+}
+
+// modifies input bytes
+func reduce(input []byte) []byte {
+	i := 0
+	for i < len(input)-1 {
+		if abs(int(input[i])-int(input[i+1])) == 32 {
+			copy(input[i:], input[i+2:])
+			input = input[:len(input)-2]
+			if i > 0 {
+				i--
+			}
+			continue
+		}
+		i++
 	}
 	return input
 }
