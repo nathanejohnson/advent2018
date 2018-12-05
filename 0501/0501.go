@@ -20,17 +20,18 @@ func main() {
 	scratch := make([]byte, origL)
 	copy(scratch, input)
 	reduced := reduce(scratch)
-	fmt.Printf("part 1: input: %d %d\n", len(input), len(reduced))
+	fmt.Printf("part 1: %d\n", len(reduced))
 	shortest := len(reduced)
+	scratch = make([]byte, shortest)
 	for c := 'a'; c <= 'z'; c++ {
-		copy(scratch, input)
-		reduced = removeChar(scratch, c)
-		reduced = reduce(reduced)
-		if len(reduced) < shortest {
-			shortest = len(reduced)
+		copy(scratch, reduced)
+		reduced2 := removeChar(scratch, c)
+		reduced2 = reduce(reduced2)
+		if len(reduced2) < shortest {
+			shortest = len(reduced2)
 		}
 	}
-	fmt.Printf("shortest: %d\n", shortest)
+	fmt.Printf("part 2: %d\n", shortest)
 }
 
 // modifies input bytes
