@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 type Entry struct {
@@ -52,14 +53,9 @@ func (ll *LinkedList) Remove(ch byte) {
 
 func (ll *LinkedList) Reduce() {
 	cur := ll.front
-	i := 0
 	var prev *Entry
 	for cur != nil && cur.next != nil {
-		i++
-		c1 := cur.v
-		c2 := cur.next.v
-
-		if abs(int(c1)-int(c2)) == 32 {
+		if abs(int(cur.v)-int(cur.next.v)) == 32 {
 			if cur == ll.front {
 				ll.front = cur.Next().Next()
 				cur = ll.front
@@ -113,10 +109,6 @@ type LinkedList struct {
 }
 
 func (lls *LinkedList) Init(data []byte) {
-	if len(data) == 0 {
-		panic("data is zero")
-	}
-
 	entries := lls.entries
 	if len(entries) != len(data) {
 		entries = make([]Entry, len(data))
@@ -147,6 +139,8 @@ func main() {
 	reader := bufio.NewScanner(fh)
 	reader.Scan()
 	input := reader.Bytes()
+
+	startTime := time.Now()
 	ll := &LinkedList{}
 	ll.Init(input)
 	ll.Reduce()
@@ -156,9 +150,6 @@ func main() {
 	for c := 'a'; c <= 'z'; c++ {
 		ll.Init(part1Solution)
 		ll.Remove(byte(c))
-		if l := ll.validateLen(); l != ll.length {
-			fmt.Printf("dammit, %s %d %d\n", string(c), l, ll.length)
-		}
 		ll.Reduce()
 		if ll.length < shortest {
 			shortest = ll.length
@@ -166,4 +157,5 @@ func main() {
 
 	}
 	fmt.Printf("part2: %d\n", shortest)
+	fmt.Printf("elapsed: %s\n", time.Since(startTime))
 }
