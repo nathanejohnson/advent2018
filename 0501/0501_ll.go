@@ -111,6 +111,16 @@ type LinkedList struct {
 func (lls *LinkedList) Init(data []byte) {
 	entries := lls.entries
 	if len(entries) != len(data) {
+		if entries != nil {
+			// be nice to the GC?  not sure if this necessary
+			// TODO test this
+			for i := range entries {
+				entries[i].next = nil
+				entries[i].prev = nil
+			}
+			lls.entries = nil
+			entries = nil
+		}
 		entries = make([]Entry, len(data))
 	}
 	lls.front = &entries[0]
