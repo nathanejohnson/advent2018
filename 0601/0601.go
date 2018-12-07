@@ -42,6 +42,7 @@ func main() {
 	grid := make([][]*point, maxX)
 	areaSums := make(map[*point]int)
 	theTenK := 0
+	infinitePoints := make(map[*point]bool)
 	for x := range grid {
 		grid[x] = make([]*point, maxY)
 		for y := 0; y < maxY; y++ {
@@ -50,19 +51,11 @@ func main() {
 			grid[x][y] = p
 			areaSums[p]++
 			theTenK += AccDistance10K(me, data)
+			switch {
+			case x == 0, y == 0, x == maxX-1, y == maxY-1:
+				infinitePoints[p] = true
+			}
 		}
-
-	}
-
-	infinitePoints := make(map[*point]bool)
-	for x := 0; x < maxX; x++ {
-		infinitePoints[grid[x][0]] = true
-		infinitePoints[grid[x][maxY-1]] = true
-	}
-
-	for y := 0; y < maxY; y++ {
-		infinitePoints[grid[0][y]] = true
-		infinitePoints[grid[maxX-1][y]] = true
 	}
 
 	maxArea := 0
