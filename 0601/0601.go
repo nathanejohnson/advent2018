@@ -12,15 +12,6 @@ type point struct {
 	y int
 }
 
-type direction int
-
-const (
-	right direction = iota
-	up
-	left
-	down
-)
-
 func main() {
 	var data []*point
 
