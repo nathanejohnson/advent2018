@@ -85,7 +85,6 @@ func AccDistance10K(me *point, data []*point) int {
 
 func ClosestToMe(me *point, points []*point) *point {
 	distance := -1
-	dct := 0
 	var out *point
 	for i := range points {
 		d := Distance(me, points[i])
@@ -93,11 +92,9 @@ func ClosestToMe(me *point, points []*point) *point {
 		case d == 0:
 			return points[i]
 		case d == distance:
-			dct++
 			out = nil
 		case distance == -1 || d < distance:
 			distance = d
-			dct = 0
 			out = points[i]
 		}
 	}
