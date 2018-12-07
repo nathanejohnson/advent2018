@@ -49,11 +49,12 @@ func main() {
 			me := &point{x, y}
 			p := ClosestToMe(me, data)
 			grid[x][y] = p
-			areaSums[p]++
 			theTenK += AccDistance10K(me, data)
 			switch {
 			case x == 0, y == 0, x == maxX-1, y == maxY-1:
 				infinitePoints[p] = true
+			default:
+				areaSums[p]++
 			}
 		}
 	}
@@ -101,14 +102,6 @@ func ClosestToMe(me *point, points []*point) *point {
 		}
 	}
 	return out
-}
-
-func Exclude(i int, data []*point) []*point {
-	notus := make([]*point, 0, len(data)-1)
-	if i > 0 {
-		notus = append(notus, data[:i]...)
-	}
-	return append(notus, data[i+1:]...)
 }
 
 func Distance(a, b *point) int {
