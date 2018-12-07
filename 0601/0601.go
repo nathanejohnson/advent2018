@@ -50,13 +50,15 @@ func main() {
 
 	grid := make([][]*point, maxX)
 	areaSums := make(map[*point]int)
-
+	theTenK := 0
 	for x := range grid {
 		grid[x] = make([]*point, maxY)
 		for y := 0; y < maxY; y++ {
-			p := ClosestToMe(&point{x, y}, data)
+			me := &point{x, y}
+			p := ClosestToMe(me, data)
 			grid[x][y] = p
 			areaSums[p]++
+			theTenK += AccDistance10K(me, data)
 		}
 
 	}
@@ -82,6 +84,18 @@ func main() {
 		}
 	}
 	fmt.Printf("part 1: %d\n", maxArea)
+	fmt.Printf("part 2: %d\n", theTenK)
+}
+
+func AccDistance10K(me *point, data []*point) int {
+	agg := 0
+	for i := range data {
+		agg += Distance(me, data[i])
+		if agg >= 10000 {
+			return 0
+		}
+	}
+	return 1
 }
 
 func ClosestToMe(me *point, points []*point) *point {
@@ -103,67 +117,6 @@ func ClosestToMe(me *point, points []*point) *point {
 		}
 	}
 	return out
-}
-
-func FindArea(grid [][]*point, us *point, notus []*point) int {
-	var xPlus, yPlus, xMinus, yMinus *point
-
-	if xPlus, notus = FindClosest(us, notus, right); xPlus == nil {
-		fmt.Println("infinite right")
-		return -1
-	}
-	if yPlus, notus = FindClosest(us, notus, up); yPlus == nil {
-		fmt.Println("infinite up")
-		return -1
-	}
-	if xMinus, notus = FindClosest(us, notus, left); xMinus == nil {
-		fmt.Println("infinite left")
-		return -1
-	}
-	if yMinus, notus = FindClosest(us, notus, down); yMinus == nil {
-		fmt.Println("infinite down")
-		return -1
-	}
-	area := 0
-	for x := xMinus.x; x < xPlus.x; x++ {
-		for y := yMinus.y; y < yPlus.y; y++ {
-			// fmt.Printf("trying grid[%d][%d]\n", x, y)
-			if grid[x][y] == us {
-				area++
-			}
-		}
-	}
-
-	return area
-}
-
-func FindClosest(p *point, data []*point, d direction) (*point, []*point) {
-	var closest *point
-	var distance int
-	closestIndex := -1
-	for i := range data {
-		matched := false
-		switch d {
-		case right:
-			matched = (data[i].x > p.x && (closest == nil || Distance(data[i], p) <= distance))
-		case up:
-			matched = (data[i].y > p.y && (closest == nil || Distance(data[i], p) <= distance))
-		case left:
-			matched = (data[i].x < p.x && (closest == nil || Distance(data[i], p) <= distance))
-		case down:
-			matched = (data[i].y < p.y && (closest == nil || Distance(data[i], p) <= distance))
-		}
-		if matched {
-			distance = Distance(data[i], p)
-			closest = data[i]
-			closestIndex = i
-		}
-	}
-
-	if closest != nil {
-		data = Exclude(closestIndex, data)
-	}
-	return closest, data
 }
 
 func Exclude(i int, data []*point) []*point {
