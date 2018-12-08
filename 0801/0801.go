@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type node struct {
@@ -25,9 +26,11 @@ func main() {
 
 	reader.Scan()
 	data := strings.Split(reader.Text(), " ")
+	t := time.Now()
 	root := &node{}
 	_, count := root.Read(data)
-	fmt.Printf("part1: %d\n", count)
+	elapsed := time.Since(t)
+	fmt.Printf("part1: %d, elapsed: %s\n", count, elapsed.String())
 }
 
 func (n *node) Read(data []string) ([]string, int) {

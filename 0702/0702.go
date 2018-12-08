@@ -15,11 +15,10 @@ type worker struct {
 	elapsed int
 }
 
-func (w *worker) tick(data map[string][]string) string {
+func (w *worker) tick() string {
 	if w.working {
 		w.elapsed++
 		if w.elapsed >= w.length {
-			remove(w.job, data)
 			w.working = false
 			return w.job
 		}
@@ -57,6 +56,7 @@ func main() {
 			panic(err)
 		}
 		depList[b] = append(depList[b], a)
+		// ensure depList[a] exists
 		depList[a] = append(depList[a], empty...)
 	}
 
@@ -95,11 +95,11 @@ func main() {
 			waiting = waiting[1:]
 		}
 		for _, w := range workers {
-			j := w.tick(depList)
+			j := w.tick()
 			if j != "" {
+				remove(j, depList)
 				output += j
 			}
-
 		}
 	}
 
