@@ -93,7 +93,7 @@ func ClosestToMe(me *point, points []*point) *point {
 			return points[i]
 		case d == distance:
 			out = nil
-		case distance == -1 || d < distance:
+		case distance == -1, d < distance:
 			distance = d
 			out = points[i]
 		}
