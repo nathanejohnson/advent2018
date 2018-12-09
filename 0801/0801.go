@@ -25,19 +25,23 @@ func main() {
 	reader := bufio.NewScanner(fh)
 
 	reader.Scan()
-	data := strings.Split(reader.Text(), " ")
-	t := time.Now()
+	sdata := strings.Split(reader.Text(), " ")
+	data := make([]int, len(sdata))
+	for i := range sdata {
+		data[i] = digit(sdata[i])
+	}
 	root := &node{}
+	t := time.Now()
 	_, count := root.Read(data)
 	elapsed := time.Since(t)
 	fmt.Printf("part1: %d, elapsed: %s\n", count, elapsed.String())
 }
 
-func (n *node) Read(data []string) ([]string, int) {
+func (n *node) Read(data []int) ([]int, int) {
 	header := data[:2]
 	data = data[2:]
-	n.childCt = digit(header[0])
-	n.metadataCt = digit(header[1])
+	n.childCt = header[0]
+	n.metadataCt = header[1]
 	value := 0
 	for i := 0; i < n.childCt; i++ {
 		child := &node{}
@@ -48,7 +52,7 @@ func (n *node) Read(data []string) ([]string, int) {
 	}
 
 	for i := 0; i < n.metadataCt; i++ {
-		ct := digit(data[i])
+		ct := data[i]
 		value += ct
 	}
 	data = data[n.metadataCt:]
