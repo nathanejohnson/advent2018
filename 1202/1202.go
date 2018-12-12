@@ -18,7 +18,7 @@ type rule struct {
 func main() {
 	var lpad, rpad int
 	flag.IntVar(&lpad, "lpad", 5, "left padding")
-	flag.IntVar(&rpad, "rpad", 25, "right padding")
+	flag.IntVar(&rpad, "rpad", 120, "right padding")
 
 	flag.Parse()
 	reader := bufio.NewScanner(os.Stdin)
@@ -60,13 +60,14 @@ func main() {
 	gen := 0
 	score := 0
 	delta := 0
+	deltaHitCt := 0
 	for ; gen < 50000000000; gen++ {
 		if bytes.Compare(lastGen[0:3], safety) != 0 {
-			fmt.Printf("dammit before: %d: %s\n", gen, lastGen)
+			fmt.Printf("dammit before: %d: %s, up the lpad\n", gen, lastGen)
 			return
 		}
 		if bytes.Compare(lastGen[len(lastGen)-3:], safety) != 0 {
-			fmt.Printf("dammit after %d: %s\n", gen, lastGen)
+			fmt.Printf("dammit after %d: %s, up the rpad\n", gen, lastGen)
 			return
 		}
 		copy(thisGen, empties)
@@ -79,13 +80,18 @@ func main() {
 		newScore := Score(thisGen, lpad)
 		newDelta := newScore - score
 		if newDelta == delta {
-			fmt.Printf("we're stable!\n")
-			break
+			if deltaHitCt > 2 {
+				fmt.Printf("we're stable at generation %d / delta %d!\n", gen, delta)
+				break
+			}
+			deltaHitCt++
 		}
 		delta = newDelta
 		score = newScore
 		copy(lastGen, thisGen)
-		fmt.Printf("checkpoint gen %d: score: %d delta: %d\n", gen, score, delta)
+		if gen%10 == 0 {
+			fmt.Printf("checkpoint gen %d: score: %d delta: %d\n", gen, score, delta)
+		}
 	}
 
 	score += delta * (50000000000 - gen)
