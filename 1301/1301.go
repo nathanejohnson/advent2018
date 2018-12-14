@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -109,7 +110,7 @@ func (c Carts) Swap(i, j int) {
 func (c Carts) Collision() (bool, Carts) {
 	m := make(map[string]*cart)
 	f := func(x, y int) string {
-		return fmt.Sprintf("%d:%d", x, y)
+		return strconv.Itoa(x) + ":" + strconv.Itoa(y)
 	}
 	collision := false
 	var deletes []string
