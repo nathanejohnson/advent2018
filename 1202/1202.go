@@ -35,8 +35,6 @@ func main() {
 
 	copy(init[lpad:], buf)
 
-	fmt.Printf("initial:\t   %s\nnew:\t\t%s\n", buf, init)
-
 	reader.Scan()
 	rules := make(map[string]string)
 
@@ -55,7 +53,6 @@ func main() {
 	t := time.Now()
 	lastGen := init
 	thisGen := make([]byte, len(init))
-	fmt.Printf("%d\t%s\n", 0, init)
 	safety := []byte{'.', '.', '.'}
 	gen := 0
 	score := 0
@@ -89,9 +86,9 @@ func main() {
 		delta = newDelta
 		score = newScore
 		copy(lastGen, thisGen)
-		if gen%10 == 0 {
-			fmt.Printf("checkpoint gen %d: score: %d delta: %d\n", gen, score, delta)
-		}
+		//if gen%10 == 0 {
+		//	fmt.Printf("checkpoint gen %d: score: %d delta: %d\n", gen, score, delta)
+		//}
 	}
 
 	score += delta * (50000000000 - gen)
