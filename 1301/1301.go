@@ -56,8 +56,8 @@ func (c *cart) Tick(grid [][]byte) {
 			}
 		case rightTurn:
 			c.direction++
+			c.direction %= 4
 		}
-		c.direction %= 4
 		c.nextTurn++
 		c.nextTurn %= 3
 	case '\\':
