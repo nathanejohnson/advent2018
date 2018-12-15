@@ -20,10 +20,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("input is not positive integer: %s", err)
 	}
-	bigLine := make([]byte, 2, capSize)
+	scores := make([]byte, 2, capSize)
 
 	elf1, elf2 := 0, 1
-	bigLine[elf1], bigLine[elf2] = 3, 7
+	scores[elf1], scores[elf2] = 3, 7
 
 	sequence := []byte(input)
 	for i := range sequence {
@@ -32,19 +32,19 @@ func main() {
 	t := time.Now()
 OUTER:
 	for {
-		for _, d := range digitSlice(uint(bigLine[elf1] + bigLine[elf2])) {
-			bigLine = append(bigLine, d)
-			if bytes.HasSuffix(bigLine, sequence) {
+		for _, d := range digitSlice(uint(scores[elf1] + scores[elf2])) {
+			scores = append(scores, d)
+			if bytes.HasSuffix(scores, sequence) {
 				break OUTER
 			}
 		}
-		elf1 += int(bigLine[elf1]) + 1
-		elf1 %= len(bigLine)
-		elf2 += int(bigLine[elf2]) + 1
-		elf2 %= len(bigLine)
+		elf1 += int(scores[elf1]) + 1
+		elf1 %= len(scores)
+		elf2 += int(scores[elf2]) + 1
+		elf2 %= len(scores)
 	}
 	elapsed := time.Since(t)
-	fmt.Printf("%s first appears after %d recipes : %s\n", input, len(bigLine)-len(sequence), elapsed)
+	fmt.Printf("%s first appears after %d recipes : %s\n", input, len(scores)-len(sequence), elapsed)
 
 }
 
