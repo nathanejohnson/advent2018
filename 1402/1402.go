@@ -44,8 +44,8 @@ OUTER:
 		elf2 %= len(scores)
 	}
 	elapsed := time.Since(t)
-	fmt.Printf("%s first appears after %d recipes : %s\n", input, len(scores)-len(sequence), elapsed)
-
+	fmt.Printf("%s first appears after %d recipes : %s\n",
+		input, len(scores)-len(sequence), elapsed)
 }
 
 func digitSlice(ui uint) []byte {
