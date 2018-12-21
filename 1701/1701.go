@@ -143,11 +143,9 @@ func main() {
 	for y := range grid {
 		fmt.Printf("%s\n", grid[y])
 		if y < minY || y > maxY {
-			fmt.Printf("skipping %d\n", y)
 			continue
 		}
 		for x := range grid[y] {
-
 			switch grid[y][x] {
 			case '~', '|':
 				ct++
@@ -234,7 +232,6 @@ func dive(x, y int, grid [][]byte) {
 				}
 				dive(x, y-1, grid)
 			}
-
 			return
 		}
 	}
