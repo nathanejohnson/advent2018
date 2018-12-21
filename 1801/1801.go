@@ -82,10 +82,9 @@ func main() {
 			}
 		}
 		h := hash(grid)
-		if v, ok := sums[h]; ok {
-			fmt.Printf("got a repeat at %d for %d\n", minute, v)
-			dt := minute - v
-			offset := v
+		if offset, ok := sums[h]; ok {
+			fmt.Printf("got a repeat at %d for %d\n", minute, offset)
+			dt := minute - offset
 			repeats := (minutes-offset)/dt - 1
 			minute += repeats * dt
 			fmt.Printf("dt %d offset %d repeats %d newminute %d\n", dt, offset, repeats, minute)
